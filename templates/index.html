@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hệ thống Phân loại Văn bản | Quản lý văn bản</title>
+  <meta name="description" content="Hệ thống phân loại và quản lý văn bản — gửi, nhận, theo dõi trạng thái, tìm kiếm và thống kê." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://YOUR_DOMAIN/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://YOUR_DOMAIN/" />
+  <meta property="og:title" content="Hệ thống Phân loại Văn bản" />
+  <meta property="og:description" content="Giải pháp quản lý văn bản thông minh — tự động phân loại, theo dõi và lưu trữ văn bản." />
+  <meta property="og:image" content="https://YOUR_DOMAIN/static/images/preview.jpg" />
+
+  <!-- Styles -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    body { background:#f5f6fa; }
+    .card { border:none; }
+    .page-section { display:none; }
+    .page-section.active { display:block; }
+    .table-wrap { max-height:480px; overflow:auto; }
+    .small-muted { font-size:.9rem; color:#6c757d; }
+    .nav-pills .nav-link { cursor:pointer; }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+  <div class="container">
+    <a class="navbar-brand text-primary fw-bold" href="#" onclick="showPage('home')">Phân loại Văn bản</a>
+    <div class="ms-auto d-flex gap-2">
+      <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#loginModal">Đăng nhập</button>
+      <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#registerModal">Đăng ký</button>
+    </div>
+  </div>
+</nav>
+
+<main class="container mt-4">
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item"><a class="nav-link active" onclick="showPage('home')">Trang chủ</a></li>
+    <li class="nav-item"><a class="nav-link" onclick="showPage('incoming')">Văn bản đến</a></li>
+    <li class="nav-item"><a class="nav-link" onclick="showPage('outgoing')">Văn bản đi</a></li>
+  </ul>
+
+  <section id="home" class="page-section active">
+    <div class="card p-4 shadow-sm">
+      <h3 class="mb-3">Phân loại Văn bản</h3>
+      <label class="form-label">Nhập nội dung văn bản</label>
+      <textarea id="textInput" class="form-control mb-3" rows="6" placeholder="Nhập nội dung để phân loại..."></textarea>
+
+      <div class="d-flex gap-2 mb-3">
+        <button id="classifyBtn" class="btn btn-primary" onclick="classify()"><i class="fas fa-magic"></i> Phân loại</button>
+        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addDataModal"><i class="fas fa-plus"></i> Thêm mẫu</button>
+      </div>
+
+      <div>
+        <h6>Kết quả: <span id="result" class="badge bg-secondary">...</span></h6>
+        <p class="small-muted">Phiên âm IPA: <span id="ipa_result">...</span></p>
+      </div>
+
+      <div id="sendDocumentForm" class="mt-3 border rounded p-3 bg-light" style="display:none;">
+        <h6 class="mb-2">Gửi văn bản</h6>
+        <div class="row g-2">
+          <div class="col-sm-4">
+            <label class="form-label">Ký hiệu</label>
+            <input id="signInput" class="form-control" type="text" placeholder="Nhập ký hiệu văn bản" />
+          </div>
+          <div class="col-sm-4">
+            <label class="form-label">Người nhận / Cơ quan</label>
+            <input id="receiverName" class="form-control" type="text" placeholder="Tên người nhận hoặc cơ quan" />
+          </div>
+          <div class="col-sm-4">
+            <label class="form-label">Phòng ban nhận</label>
+            <select id="receiverDepartment" class="form-select">
+              <option value="">Chọn phòng ban</option>
+              <option value="ketoan">Kế toán</option>
+              <option value="marketing">Marketing</option>
+              <option value="nhansu">Nhân sự</option>
+              <option value="phapche">Pháp chế</option>
+              <option value="taichinh">Tài chính</option>
+            </select>
+          </div>
+          <div class="col-sm-4 mt-2">
+            <label class="form-label">Người ký</label>
+            <input id="signerInput" class="form-control" type="text" placeholder="Người ký phát hành" />
+          </div>
+          <div class="col-sm-4 mt-2">
+            <label class="form-label">Ưu tiên</label>
+            <select id="priority" class="form-select">
+              <option value="normal">Bình thường</option>
+              <option value="high">Cao</option>
+              <option value="urgent">Khẩn cấp</option>
+            </select>
+          </div>
+          <div class="col-sm-4 mt-2">
+            <label class="form-label">Ngày gửi</label>
+            <input id="sendDate" type="date" class="form-control" value="">
+          </div>
+        </div>
+
+        <div class="mt-2">
+          <label class="form-label">Ghi chú</label>
+          <textarea id="note" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="mt-2">
+          <label class="form-label">File đính kèm</label>
+          <input id="attachmentInput" type="file" class="form-control" multiple />
+          <div class="small text-muted mt-1">Bạn có thể chọn nhiều file.</div>
+        </div>
+
+        <div class="mt-3 d-flex gap-2">
+          <button class="btn btn-success" onclick="sendDocument()"><i class="fas fa-paper-plane"></i> Gửi</button>
+          <button class="btn btn-outline-secondary" onclick="cancelSend()">Hủy</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="incoming" class="page-section">
+    <div class="card p-3 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Văn bản đến</h4>
+        <div><button class="btn btn-sm btn-outline-secondary" onclick="fetchPageData('incoming')"><i class="fas fa-sync-alt"></i> Làm mới</button></div>
+      </div>
+
+      <ul class="nav nav-pills mb-3" id="incomingTabs">
+        <li class="nav-item"><a class="nav-link active" data-status="Chưa xử lý" onclick="loadIncoming('Chưa xử lý', this)">Chưa xử lý</a></li>
+        <li class="nav-item"><a class="nav-link" data-status="Đang xử lý" onclick="loadIncoming('Đang xử lý', this)">Đang xử lý</a></li>
+        <li class="nav-item"><a class="nav-link" data-status="Đến hạn" onclick="loadIncoming('Đến hạn', this)">Đến hạn</a></li>
+        <li class="nav-item"><a class="nav-link" data-status="Quá hạn" onclick="loadIncoming('Quá hạn', this)">Quá hạn</a></li>
+      </ul>
+
+      <div class="table-wrap">
+        <table class="table table-sm table-striped mb-0">
+          <thead class="table-light" id="incomingThead"></thead>
+          <tbody id="incomingTbody">
+            <tr><td colspan="8" class="text-center small text-muted">Chưa có dữ liệu</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="outgoing" class="page-section">
+    <div class="card p-3 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Văn bản đi</h4>
+        <div><button class="btn btn-sm btn-outline-secondary" onclick="fetchPageData('outgoing')"><i class="fas fa-sync-alt"></i> Làm mới</button></div>
+      </div>
+
+      <ul class="nav nav-pills mb-3" id="outgoingTabs">
+        <li class="nav-item"><a class="nav-link active" data-filter="Đã xử lý" onclick="loadOutgoing('Đã xử lý', this)">Đã xử lý</a></li>
+        <li class="nav-item"><a class="nav-link" data-filter="Đã phát hành" onclick="loadOutgoing('Đã phát hành', this)">Đã phát hành</a></li>
+        <li class="nav-item"><a class="nav-link" data-filter="Chưa xem" onclick="loadOutgoing('Chưa xem', this)">Chưa xem</a></li>
+      </ul>
+
+      <div class="table-wrap">
+        <table class="table table-sm table-striped mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Số</th><th>Ký hiệu</th><th>Ngày phát hành</th><th>Người ký</th>
+              <th>Người nhận / Cơ quan</th><th>Trạng thái xem</th><th>File</th><th>Ghi chú</th>
+            </tr>
+          </thead>
+          <tbody id="outgoingTbody">
+            <tr><td colspan="8" class="text-center small text-muted">Chưa có dữ liệu</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Modals -->
+<div class="modal fade" id="addDataModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Thêm dữ liệu mẫu</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <div class="mb-3"><label class="form-label">Nội dung</label><textarea id="addText" class="form-control" rows="4"></textarea></div>
+      <div class="mb-3"><label class="form-label">Nhãn</label><input id="addLabel" class="form-control" /></div>
+      <div id="addDataMsg" class="small text-success"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button class="btn btn-primary" onclick="addSample()">Thêm</button></div>
+  </div></div>
+</div>
+
+<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Đăng nhập</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <div class="mb-3"><label class="form-label">Email</label><input id="loginEmail" class="form-control" type="email"></div>
+      <div class="mb-3"><label class="form-label">Mật khẩu</label><input id="loginPassword" class="form-control" type="password"></div>
+      <div id="loginError" class="text-danger small" style="display:none;"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button id="loginSubmitBtn" class="btn btn-primary" onclick="loginUser()">Đăng nhập</button></div>
+  </div></div>
+</div>
+
+<div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Đăng ký</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <div class="mb-3"><label class="form-label">Họ và tên</label><input id="regName" class="form-control" type="text" /></div>
+      <div class="mb-3"><label class="form-label">Email</label><input id="regEmail" class="form-control" type="email" /></div>
+      <div class="mb-3"><label class="form-label">Mật khẩu</label><input id="regPassword" class="form-control" type="password" /></div>
+      <div id="registerError" class="text-danger small" style="display:none;"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button id="registerSubmitBtn" class="btn btn-success" onclick="registerUser()">Đăng ký</button></div>
+  </div></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function showPage(id){
+  document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* Classification and UI functions omitted for brevity — keep implementations from your previous file */
+</script>
+</body>
+</html>
